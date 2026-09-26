@@ -1,0 +1,139 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+    Name = "ESP Menu",
+    LoadingTitle = "กำลังโหลดสคริปต์...",
+    LoadingSubtitle = "Rayfield UI",
+    ConfigurationSaving = { Enabled = false },
+    KeySystem = false,
+})
+
+local Tab = Window:CreateTab("ESP", 4483362458)
+
+local Workspace = game:GetService("Workspace")
+local espConnection
+local espEnabled = false
+
+local function applyLineESP(object)
+    if object.Name == "Terrain" or object.Name == "Baseplate" then return end
+    if object:IsA("Model") or (object:IsA("BasePart") and object.Parent == Workspace) then
+        if not object:FindFirstChild("ESPLineBox") then
+            local box = Instance.new("SelectionBox")
+            box.Name = "ESPLineBox"
+            box.Adornee = object
+            box.Color3 = Color3.fromRGB(0, 255, 255) -- สีฟ้า Cyan
+            box.LineThickness = 0.05
+            box.SurfaceTransparency = 1
+            box.Parent = object
+        end
+    end
+end
+
+local function removeLineESP()
+    for _, item in ipairs(Workspace:GetDescendants()) do
+        local box = item:FindFirstChild("ESPLineBox")
+        if box then
+            box:Destroy()
+        end
+    end
+    if espConnection then
+        espConnection:Disconnect()
+        espConnection = nil
+    end
+end
+
+local function enableLineESP()
+    for _, item in ipairs(Workspace:GetChildren()) do
+        applyLineESP(item)
+    end
+    espConnection = Workspace.ChildAdded:Connect(function(item)
+        task.wait(0.1)
+        applyLineESP(item)
+    end)
+end
+
+Tab:CreateToggle({
+    Name = "เปิด/ปิด Line ESP ทุกวัตถุ",
+    CurrentValue = false,
+    Flag = "LineESPFlag",
+    Callback = function(Value)
+        espEnabled = Value
+        if espEnabled then
+            enableLineESP()
+            Rayfield:Notify({
+                Title = "เปิดใช้งาน ESP",
+                Content = "แสดงเส้นกรอบวัตถุทั้งหมดแล้ว",
+                Duration = 2,
+            })
+        else
+            removeLineESP()
+            Rayfield:Notify({
+                Title = "ปิดใช้งาน ESP",
+                Content = "ลบเส้นกรอบทั้งหมดแล้ว",
+                Duration = 2,
+            })
+        end
+    end,
+})
+local Workspace = game:GetService("Workspace")
+
+local function applyLineESP(object)
+    -- ข้ามวัตถุที่ไม่จำเป็น เช่น พื้นดิน หรือ Baseplate
+    if object.Name == "Terrain" or object.Name == "Baseplate" then return end
+
+    -- ทำงานกับทุก Model และ Part
+    if object:IsA("Model") or (object:IsA("BasePart") and object.Parent == Workspace) then
+        if not object:FindFirstChild("ESPLineBox") then
+            local box = Instance.new("SelectionBox")
+            box.Name = "ESPLineBox"
+            box.Adornee = object
+            box.Color3 = Color3.fromRGB(0, 255, 255) -- สีของเส้นกรอบ (สีฟ้า Cyan)
+            box.LineThickness = 0.05 -- ความหนาของเส้น
+            box.SurfaceTransparency = 1 -- ซ่อนพื้นผิวทึบ ให้เหลือเฉพาะเส้นขอบมองทะลุกำแพง
+            box.Parent = object
+        end
+    end
+end
+
+-- ใส่ ESP แบบเส้นให้ทุกวัตถุที่มีใน Workspace ทันที
+for _, item in ipairs(Workspace:GetChildren()) do
+    applyLineESP(item)
+end
+
+-- ใส่ ESP ให้วัตถุใหม่ที่เกิดมาในแมปอัตโนมัติ
+Workspace.ChildAdded:Connect(function(item)
+    task.wait(0.1)
+    applyLineESP(item)
+end)
+local Workspace = game:GetService("Workspace")
+
+local function applyESP(object)
+    -- ข้ามวัตถุที่ไม่จำเป็น เช่น พื้นดิน หรือ Baseplate
+    if object.Name == "Terrain" or object.Name == "Baseplate" then return end
+
+    -- ทำงานกับทุก Model และ Part โดยไม่ต้องระบุชื่อ
+    if object:IsA("Model") or (object:IsA("BasePart") and object.Parent == Workspace) then
+        if not object:FindFirstChild("ESPHighlight") then
+            local highlight = Instance.new("Highlight")
+            highlight.Name = "ESPHighlight"
+            highlight.Adornee = object
+            highlight.FillColor = Color3.fromRGB(0, 255, 150) -- สีเรืองแสง (เขียวมินต์)
+            highlight.OutlineColor = Color3.fromRGB(255, 255, 255) -- สีเส้นขอบ (ขาว)
+            highlight.FillTransparency = 0.5 -- ความโปร่งแสง
+            highlight.OutlineTransparency = 0
+            highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop -- มองทะลุกำแพง
+            highlight.Parent = object
+        end
+    end
+end
+
+-- ใส่ ESP ให้ทุกวัตถุที่มีอยู่ใน Workspace ทันที
+for _, item in ipairs(Workspace:GetChildren()) do
+    applyESP(item)
+end
+
+-- ใส่ ESP ให้วัตถุใหม่ที่เกิดมาในแมปอัตโนมัติ
+Workspace.ChildAdded:Connect(function(item)
+    task.wait(0.1)
+    applyESP(item)
+end)
